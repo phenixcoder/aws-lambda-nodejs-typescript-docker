@@ -1,0 +1,26 @@
+{
+  "name": "aws-lambda-nodejs-typescript-docker",
+  "version": "1.0.0",
+  "description": "Boilerplate to build your lambda function with nodejs and typescript and deploy it using aws lambda docker image",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phenixcoder/aws-lambda-nodejs-typescript-docker.git"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "nodejs",
+    "typescript",
+    "docker"
+  ],
+  "author": "balwant.matharu@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/phenixcoder/aws-lambda-nodejs-typescript-docker/issues"
+  },
+  "homepage": "https://github.com/phenixcoder/aws-lambda-nodejs-typescript-docker#readme"
+}
