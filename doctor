@@ -1,0 +1,97 @@
+#!/bin/bash
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+LIGHTGRAY='\033[0;37m'
+DARKGRAY='\033[1;30m'
+NC='\033[0m' # No Color
+
+AWS_CLI_PATH="$(command -v aws)"
+if [ ! -z AWS_CLI_PATH ] ; then
+    printf "AWS CLI: ${GREEN}OK${NC} ${DARKGRAY}$(aws --v)${NC}\n"
+else
+    echo "AWS CLI not installed. Please install AWS CLI. See https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html"
+    exit 1
+fi
+
+AWS_SAM_CLI_PATH="$(command -v sam)"
+if [ ! -z AWS_SAM_CLI_PATH ] ; then
+    printf "AWS SAM CLI: ${GREEN}OK${NC} ${DARKGRAY}$(sam --version)${NC}\n"
+else
+    echo "AWS SAM CLI not installed. Please install AWS SAM CLI. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html"
+    exit 1
+fi
+
+FILE=./environment.sh
+if test -f "$FILE"; then
+    printf "Environment: ${GREEN}OK${NC}\n"
+else 
+    printf "${YELLOW}$FILE does not exists. Creating new file...\n\n"
+    accountId=$(aws sts get-caller-identity | grep "Account" | sed 's/    "Account": "//g' | sed 's/",//g')
+    awsregion=$(aws configure get region)
+    printf "Please provide the following:\n${NC}"
+    reponame=
+    while [ -z $reponame ]
+    do
+    
+    printf "Repo Name (AWS ECR Repo): "
+    read iReponame
+    if [ -z iReponame ];
+    then
+      echo Repo name cannot be blank. Please enter a valid Repon name.
+      continue
+    else
+      reponame=$iReponame
+    fi
+    done
+    printf "Account Id (${DARKGRAY}${accountId}${NC}): "
+    read iAccountId
+    printf "Aws Region (${DARKGRAY}${awsregion}${NC}): " 
+    read iAwsregion
+
+    if [ ! -z $iAccountId ];
+    then
+      accountId=$iAccountId
+    fi
+
+    if [ ! -z $iAwsregion ];
+    then
+      awsregion=$iAwsregion
+    fi
+
+    printf "\nGenerating environmrnt file..."
+    printf '%s\n' '#!/bin/sh\n' "export REPO_NAME=$reponame" "export ACCOUNT_ID=$accountId" "export AWS_REGION=$awsregion" > ./environment.sh
+    printf "${GREEN}OK${NC}\n\n"
+fi
+
+source ./environment.sh
+
+ERROR=false
+if [ ! -z $REPO_NAME ];
+then
+  printf "REPO_NAME: ${GREEN}OK${NC} ${DARKGRAY}${REPO_NAME}${NC}\n"
+else
+  printf "REPO_NAME: ${RED}NOT OK !!!${NC}\n"
+  ERROR=true
+fi
+if [ ! -z $ACCOUNT_ID ];
+then
+  printf "ACCOUNT_ID: ${GREEN}OK${NC} ${DARKGRAY}${ACCOUNT_ID}${NC}\n"
+else
+  printf "ACCOUNT_ID: ${RED}NOT OK !!!${NC}\n"
+  ERROR=true
+fi
+if [ ! -z $AWS_REGION ];
+then
+  printf "AWS_REGION: ${GREEN}OK${NC} ${DARKGRAY}${AWS_REGION}${NC}\n"
+else
+  printf "AWS_REGION: ${RED}NOT OK !!!${NC}\n"
+  ERROR=true
+fi
+
+if [ $ERROR = true ]; then
+  echo Exiting with error.
+  exit 1
+fi
+
+
