@@ -1,0 +1,14 @@
+#!/bin/bash
+
+aws iam create-role \
+    --role-name Test-Role \
+    --assume-role-policy-document file://lambda-role-policy.json
+    
+aws lambda create-function \
+    --function-name my-function \
+    --package-type Image \
+    --code ImageUri=string \
+    --environment Variables={KeyName1=string,KeyName2=string}
+    --role arn:aws:iam::1 \ 
+    --timeout 3
+    --description "Some Description of the function" \
